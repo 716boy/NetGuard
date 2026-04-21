@@ -366,8 +366,21 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
 
         showHints();
 
-        // Tunnel status banner
-        updateTunnelStatusBanner();
+        // Tunnel status cards
+        updateTunnelCards();
+
+        LinearLayout llCardWireGuard = findViewById(R.id.llCardWireGuard);
+        LinearLayout llCardSocks5   = findViewById(R.id.llCardSocks5);
+
+        Button btnCardWgConfigure = findViewById(R.id.btnCardWgConfigure);
+        if (btnCardWgConfigure != null)
+            btnCardWgConfigure.setOnClickListener(v ->
+                    startActivity(new Intent(this, ActivityWireGuard.class)));
+
+        Button btnCardSocks5Configure = findViewById(R.id.btnCardSocks5Configure);
+        if (btnCardSocks5Configure != null)
+            btnCardSocks5Configure.setOnClickListener(v ->
+                    startActivity(new Intent(this, ActivitySocks5.class)));
 
         // Listen for preference changes
         prefs.registerOnSharedPreferenceChangeListener(this);
@@ -529,6 +542,8 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         if (tvNotifications != null)
             tvNotifications.setVisibility(canNotify ? View.GONE : View.VISIBLE);
 
+        updateTunnelCards();
+
         super.onResume();
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R && false) {
@@ -686,7 +701,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                 Socks5Manager.PREF_ADDR.equals(name) ||
                 Socks5Manager.PREF_PORT.equals(name) ||
                 WireGuardManager.PREF_WG_CONFIG.equals(name)) {
-            updateTunnelStatusBanner();
+            updateTunnelCards();
 
         } else if ("whitelist_wifi".equals(name) ||
                 "screen_on".equals(name) ||
@@ -984,32 +999,44 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         }
     }
 
-    private void updateTunnelStatusBanner() {
-        LinearLayout llTunnelStatus = findViewById(R.id.llTunnelStatus);
-        TextView tvTunnelStatus = findViewById(R.id.tvTunnelStatus);
-        if (llTunnelStatus == null || tvTunnelStatus == null) return;
+    private void updateTunnelCards() {
+        LinearLayout llTunnelCards   = findViewById(R.id.llTunnelCards);
+        LinearLayout llCardWireGuard = findViewById(R.id.llCardWireGuard);
+        LinearLayout llCardSocks5    = findViewById(R.id.llCardSocks5);
+        TextView tvCardWgStatus      = findViewById(R.id.tvCardWgStatus);
+        TextView tvCardSocks5Status  = findViewById(R.id.tvCardSocks5Status);
+
+        if (llTunnelCards == null) return;
 
         WireGuardManager wg = WireGuardManager.getInstance(this);
-        Socks5Manager s5 = Socks5Manager.getInstance(this);
+        Socks5Manager s5    = Socks5Manager.getInstance(this);
 
         boolean wgActive = wg.hasConfig();
         boolean s5Active = s5.isEnabled();
 
-        if (wgActive && s5Active) {
-            tvTunnelStatus.setText(getString(R.string.msg_tunnel_wg_and_socks5));
-            llTunnelStatus.setVisibility(View.VISIBLE);
-        } else if (wgActive) {
+        // WireGuard card
+        if (wgActive && llCardWireGuard != null && tvCardWgStatus != null) {
             String peer = wg.getPeerEndpoint();
-            tvTunnelStatus.setText(getString(R.string.msg_tunnel_wg_active,
-                    peer != null ? peer : getString(R.string.msg_wg_peer_unknown)));
-            llTunnelStatus.setVisibility(View.VISIBLE);
-        } else if (s5Active) {
-            tvTunnelStatus.setText(getString(R.string.msg_tunnel_socks5_active,
-                    s5.getAddr(), s5.getPort()));
-            llTunnelStatus.setVisibility(View.VISIBLE);
-        } else {
-            llTunnelStatus.setVisibility(View.GONE);
+            tvCardWgStatus.setText(peer != null
+                    ? getString(R.string.msg_tunnel_wg_active, peer)
+                    : getString(R.string.msg_wg_configured,
+                            getString(R.string.msg_wg_peer_unknown)));
+            llCardWireGuard.setVisibility(View.VISIBLE);
+        } else if (llCardWireGuard != null) {
+            llCardWireGuard.setVisibility(View.GONE);
         }
+
+        // SOCKS5 card
+        if (s5Active && llCardSocks5 != null && tvCardSocks5Status != null) {
+            tvCardSocks5Status.setText(
+                    getString(R.string.msg_tunnel_socks5_active, s5.getAddr(), s5.getPort()));
+            llCardSocks5.setVisibility(View.VISIBLE);
+        } else if (llCardSocks5 != null) {
+            llCardSocks5.setVisibility(View.GONE);
+        }
+
+        // Show the row only when at least one card is visible
+        llTunnelCards.setVisibility(wgActive || s5Active ? View.VISIBLE : View.GONE);
     }
 
     private void showHints() {

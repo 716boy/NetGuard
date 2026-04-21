@@ -315,7 +315,10 @@ Your internet traffic is not being sent to a remote VPN server.</string>
     <string name="msg_socks5_port_required">Port is required</string>
     <string name="msg_socks5_port_invalid">Port must be 1–65535</string>
 
-    <!-- Tunnel status banner in main screen -->
+    <!-- Tunnel status cards in main screen -->
+    <string name="title_wireguard_card">WireGuard</string>
+    <string name="title_socks5_card">SOCKS5 Proxy</string>
+    <string name="title_card_configure">Configure</string>
     <string name="msg_tunnel_wg_active">WireGuard active — peer: %1$s</string>
     <string name="msg_tunnel_socks5_active">SOCKS5 proxy active — %1$s:%2$d</string>
     <string name="msg_tunnel_wg_and_socks5">WireGuard and SOCKS5 proxy active</string>
