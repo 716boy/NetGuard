@@ -79,6 +79,8 @@ public class Rule {
     public long hosts;
     public boolean changed;
 
+    public TunnelMode tunnelMode = TunnelMode.NONE;
+
     public boolean expanded = false;
 
     private static List<PackageInfo> cachePackageInfo = null;
@@ -370,6 +372,9 @@ public class Rule {
 
                         rule.apply = apply.getBoolean(info.packageName, true);
                         rule.notify = notify.getBoolean(info.packageName, true);
+
+                        rule.tunnelMode = TunnelMode.fromValue(
+                                DatabaseHelper.getInstance(context).getTunnelMode(info.packageName));
 
                         // Related packages
                         List<String> listPkg = new ArrayList<>();

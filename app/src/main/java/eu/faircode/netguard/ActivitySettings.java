@@ -232,6 +232,19 @@ public class ActivitySettings extends AppCompatActivity implements SharedPrefere
             }
         });
 
+        // Handle WireGuard config
+        Preference pref_wireguard = screen.findPreference("wireguard");
+        if (pref_wireguard != null) {
+            WireGuardManager wg = WireGuardManager.getInstance(ActivitySettings.this);
+            pref_wireguard.setSummary(wg.hasConfig()
+                    ? getString(R.string.msg_wg_configured, wg.getPeerEndpoint())
+                    : getString(R.string.msg_wg_not_configured));
+            pref_wireguard.setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(ActivitySettings.this, ActivityWireGuard.class));
+                return true;
+            });
+        }
+
         boolean can = Util.canFilter(this);
         TwoStatePreference pref_log_app = (TwoStatePreference) screen.findPreference("log_app");
         TwoStatePreference pref_filter = (TwoStatePreference) screen.findPreference("filter");

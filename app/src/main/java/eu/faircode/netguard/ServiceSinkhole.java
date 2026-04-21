@@ -147,6 +147,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
     private ServiceSinkhole.Builder last_builder = null;
     private ParcelFileDescriptor vpn = null;
     private boolean temporarilyStopped = false;
+    private PacketRouter packetRouter = null;
 
     private long last_hosts_modified = 0;
     private long last_malware_modified = 0;
@@ -157,6 +158,8 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
     private final Map<IPKey, Map<InetAddress, IPRule>> mapUidIPFilters = new HashMap<>();
     private Map<Integer, Forward> mapForward = new HashMap<>();
     private Map<Integer, Boolean> mapNotify = new HashMap<>();
+    // uid → TunnelMode for per-app routing
+    private Map<Integer, TunnelMode> mapUidTunnel = new HashMap<>();
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     private volatile Looper commandLooper;
@@ -1534,6 +1537,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
             mapMalware.clear();
             mapUidIPFilters.clear();
             mapForward.clear();
+            mapUidTunnel.clear();
             lock.writeLock().unlock();
         }
 
@@ -1544,6 +1548,11 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
             mapNotify.clear();
             lock.writeLock().unlock();
         }
+
+        // Start packet router (WireGuard + SOCKS5 tunnel lifecycle)
+        if (packetRouter == null)
+            packetRouter = new PacketRouter(this);
+        packetRouter.start();
 
         if (log || log_app || filter) {
             int prio = Integer.parseInt(prefs.getString("loglevel", Integer.toString(Log.WARN)));
@@ -1602,6 +1611,12 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
 
             Log.i(TAG, "Stopped tunnel thread");
         }
+
+        // Stop packet router (WireGuard + SOCKS5 tunnel teardown)
+        if (packetRouter != null) {
+            packetRouter.stop();
+            packetRouter = null;
+        }
     }
 
     private void unprepare() {
@@ -1613,6 +1628,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         mapUidIPFilters.clear();
         mapForward.clear();
         mapNotify.clear();
+        mapUidTunnel.clear();
         lock.writeLock().unlock();
     }
 
@@ -1626,6 +1642,11 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         mapUidKnown.clear();
         for (Rule rule : listRule)
             mapUidKnown.put(rule.uid, rule.uid);
+
+        mapUidTunnel.clear();
+        for (Rule rule : listRule)
+            if (rule.tunnelMode != TunnelMode.NONE)
+                mapUidTunnel.put(rule.uid, rule.tunnelMode);
 
         lock.writeLock().unlock();
     }
@@ -2113,8 +2134,30 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
                     allowed = new Allowed(fwd.raddr, fwd.rport);
                     packet.data = "> " + fwd.raddr + "/" + fwd.rport;
                 }
-            } else
-                allowed = new Allowed();
+            } else {
+                // Per-app tunnel routing: redirect to the appropriate local proxy
+                TunnelMode mode = mapUidTunnel.get(packet.uid);
+                if (mode == TunnelMode.SOCKS5) {
+                    Socks5Manager s5 = Socks5Manager.getInstance(this);
+                    if (s5.isEnabled()) {
+                        allowed = new Allowed(s5.getAddr(), s5.getPort());
+                        packet.data = "> socks5:" + s5.getAddr() + "/" + s5.getPort();
+                    } else {
+                        allowed = new Allowed();
+                    }
+                } else if (mode == TunnelMode.WIREGUARD) {
+                    WireGuardManager wg = WireGuardManager.getInstance(this);
+                    if (wg.isRunning()) {
+                        java.net.InetSocketAddress ep = wg.getSocks5Endpoint();
+                        allowed = new Allowed(ep.getHostString(), ep.getPort());
+                        packet.data = "> wg-socks5:" + ep.getHostString() + "/" + ep.getPort();
+                    } else {
+                        allowed = new Allowed();
+                    }
+                } else {
+                    allowed = new Allowed();
+                }
+            }
         }
 
         lock.readLock().unlock();
