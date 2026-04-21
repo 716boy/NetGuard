@@ -1,0 +1,96 @@
+name: Android CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Make Gradle executable
+        run: chmod +x gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install NDK
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "ndk;25.2.9519653"
+
+      # keystore.properties is required unconditionally by app/build.gradle.
+      # On PRs from forks the signing secrets won't be available, so we fall
+      # back to a self-signed debug keystore so the build still compiles.
+      - name: Configure signing
+        id: signing
+        run: |
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "Signing secrets found — using release keystore."
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/release.jks"
+            cat > keystore.properties <<EOF
+          storeFile=$RUNNER_TEMP/release.jks
+          storePassword=${{ secrets.KEYSTORE_STORE_PASSWORD }}
+          keyAlias=${{ secrets.KEYSTORE_KEY_ALIAS }}
+          keyPassword=${{ secrets.KEYSTORE_KEY_PASSWORD }}
+          EOF
+            echo "VARIANT=assembleRelease" >> $GITHUB_ENV
+          else
+            echo "Signing secrets missing — generating a debug keystore."
+            keytool -genkeypair -v \
+              -keystore "$RUNNER_TEMP/debug.jks" \
+              -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass android -keypass android \
+              -dname "CN=Android Debug,O=Android,C=US"
+            cat > keystore.properties <<EOF
+          storeFile=$RUNNER_TEMP/debug.jks
+          storePassword=android
+          keyAlias=androiddebugkey
+          keyPassword=android
+          EOF
+            echo "VARIANT=assembleDebug" >> $GITHUB_ENV
+          fi
+
+      - name: Build with Gradle
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: >
+            ./gradlew ${{ env.VARIANT }}
+            --info
+            --warning-mode all
+            --no-configuration-cache
+            -Dorg.gradle.jvmargs="-Xmx2g -XX:+HeapDumpOnOutOfMemoryError"
+
+      - name: Find APK
+        run: find app/build/outputs/apk/ -name "*.apk"
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: netguard-apk
+          path: app/build/outputs/apk/**/*.apk
+
+      - name: Upload mapping file
+        # Only available when minifyEnabled=true and a release build was signed
+        if: success() && env.VARIANT == 'assembleRelease'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mapping-file
+          path: app/build/outputs/mapping/release/mapping.txt
