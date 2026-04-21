@@ -27,6 +27,32 @@
             android:textColor="?attr/colorOff"
             android:visibility="gone" />
 
+        <!-- Tunnel status banner: shown when WireGuard or SOCKS5 is active -->
+        <LinearLayout
+            android:id="@+id/llTunnelStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/ivTunnelStatusIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginRight="6dp"
+                android:src="@drawable/twotone_info_outline_24" />
+
+            <TextView
+                android:id="@+id/tvTunnelStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextSmall" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tvNotifications"
             android:layout_width="match_parent"

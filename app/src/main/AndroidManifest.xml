@@ -165,6 +165,16 @@
         </activity>
 
         <activity
+            android:name=".ActivitySocks5"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_socks5"
+            android:parentActivityName=".ActivitySettings">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ActivitySettings" />
+        </activity>
+
+        <activity
             android:name=".ActivityForwardApproval"
             android:configChanges="orientation|screenSize"
             android:exported="true"

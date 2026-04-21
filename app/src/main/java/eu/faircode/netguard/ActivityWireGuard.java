@@ -17,7 +17,6 @@ package eu.faircode.netguard;
     along with NetGuard.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +26,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,15 +43,18 @@ import java.io.InputStreamReader;
 /**
  * UI for importing and managing the WireGuard tunnel configuration.
  *
- * Users can either paste a .conf directly into the text field or pick a
- * file from storage.  The config is validated (must contain [Interface] and
- * [Peer] sections) before being saved via WireGuardManager.
+ * Users can paste a .conf directly into the text field or pick a file from
+ * storage. The config is validated (must contain [Interface] and [Peer])
+ * before being saved via WireGuardManager.
  */
 public class ActivityWireGuard extends AppCompatActivity {
     private static final String TAG = "NetGuard.WireGuardUI";
 
     private EditText etConfig;
-    private TextView tvStatus;
+    private TextView tvWgStatus;
+    private ImageView ivWgStatusIcon;
+    private LinearLayout llWgPeerInfo;
+    private TextView tvWgPeer;
 
     private final ActivityResultLauncher<String[]> filePicker =
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
@@ -67,19 +71,22 @@ public class ActivityWireGuard extends AppCompatActivity {
             getSupportActionBar().setTitle(R.string.title_wireguard);
         }
 
-        etConfig = findViewById(R.id.etWgConfig);
-        tvStatus = findViewById(R.id.tvWgStatus);
+        etConfig       = findViewById(R.id.etWgConfig);
+        tvWgStatus     = findViewById(R.id.tvWgStatus);
+        ivWgStatusIcon = findViewById(R.id.ivWgStatusIcon);
+        llWgPeerInfo   = findViewById(R.id.llWgPeerInfo);
+        tvWgPeer       = findViewById(R.id.tvWgPeer);
+
         Button btnImport = findViewById(R.id.btnWgImport);
         Button btnSave   = findViewById(R.id.btnWgSave);
         Button btnClear  = findViewById(R.id.btnWgClear);
 
-        // Load existing config
         WireGuardManager wg = WireGuardManager.getInstance(this);
         String existing = wg.loadConfig();
         if (!existing.isEmpty()) {
             etConfig.setText(existing);
-            updateStatus(wg);
         }
+        updateStatus(wg);
 
         btnImport.setOnClickListener(v ->
                 filePicker.launch(new String[]{"*/*"}));
@@ -136,10 +143,21 @@ public class ActivityWireGuard extends AppCompatActivity {
     private void updateStatus(WireGuardManager wg) {
         if (wg.hasConfig()) {
             String peer = wg.getPeerEndpoint();
-            tvStatus.setText(getString(R.string.msg_wg_configured,
-                    peer != null ? peer : "unknown"));
+            tvWgStatus.setText(getString(R.string.msg_wg_configured,
+                    peer != null ? peer : getString(R.string.msg_wg_peer_unknown)));
+            ivWgStatusIcon.setImageResource(R.drawable.twotone_info_outline_24);
+
+            // Show peer info row
+            if (peer != null) {
+                llWgPeerInfo.setVisibility(View.VISIBLE);
+                tvWgPeer.setText(peer);
+            } else {
+                llWgPeerInfo.setVisibility(View.GONE);
+            }
         } else {
-            tvStatus.setText(R.string.msg_wg_not_configured);
+            tvWgStatus.setText(R.string.msg_wg_not_configured);
+            ivWgStatusIcon.setImageResource(R.drawable.twotone_info_outline_24);
+            llWgPeerInfo.setVisibility(View.GONE);
         }
     }
 }

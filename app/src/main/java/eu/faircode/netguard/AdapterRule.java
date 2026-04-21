@@ -122,6 +122,7 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
         public TextView tvName;
 
         public TextView tvHosts;
+        public TextView tvTunnelBadge;
 
         public RelativeLayout rlLockdown;
         public ImageView ivLockdown;
@@ -183,6 +184,7 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
             tvName = itemView.findViewById(R.id.tvName);
 
             tvHosts = itemView.findViewById(R.id.tvHosts);
+            tvTunnelBadge = itemView.findViewById(R.id.tvTunnelBadge);
 
             rlLockdown = itemView.findViewById(R.id.rlLockdown);
             ivLockdown = itemView.findViewById(R.id.ivLockdown);
@@ -390,6 +392,14 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
         holder.tvHosts.setVisibility(rule.hosts > 0 ? View.VISIBLE : View.GONE);
         holder.tvHosts.setText(Long.toString(rule.hosts));
 
+        // Tunnel mode badge in collapsed row
+        if (rule.tunnelMode != null && rule.tunnelMode != TunnelMode.NONE) {
+            holder.tvTunnelBadge.setText(PacketRouter.describeTunnelMode(rule.tunnelMode));
+            holder.tvTunnelBadge.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvTunnelBadge.setVisibility(View.GONE);
+        }
+
         // Lockdown settings
         boolean lockdown = prefs.getBoolean("lockdown", false);
         boolean lockdown_wifi = prefs.getBoolean("lockdown_wifi", true);
@@ -546,6 +556,13 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
                     rule.tunnelMode = selected;
                     DatabaseHelper.getInstance(context).setTunnelMode(rule.packageName, selected.value);
                     ServiceSinkhole.reload("tunnel mode", context, false);
+                    // Sync badge in collapsed row
+                    if (selected != TunnelMode.NONE) {
+                        holder.tvTunnelBadge.setText(PacketRouter.describeTunnelMode(selected));
+                        holder.tvTunnelBadge.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.tvTunnelBadge.setVisibility(View.GONE);
+                    }
                 }
             }
             @Override
