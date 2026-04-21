@@ -1,4 +1,4 @@
-name: Android CI
+name: 🛡️ Android CI
 
 on:
   push:
@@ -11,31 +11,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: 🥏 Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: ☕️ Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
-      - name: Make Gradle executable
+      - name: ⚡️ Make Gradle Executable
         run: chmod +x gradlew
 
-      - name: Setup Gradle
+      - name: 🔧 Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Install NDK
+      - name: 📱 Install NDK
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "ndk;25.2.9519653"
 
-      # keystore.properties is required unconditionally by app/build.gradle.
-      # On PRs from forks the signing secrets won't be available, so we fall
-      # back to a self-signed debug keystore so the build still compiles.
-      - name: Configure signing
+      - name: 🔐 Configure Signing & Build Variant
         id: signing
         run: |
           if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
@@ -48,6 +45,7 @@ jobs:
           keyPassword=${{ secrets.KEYSTORE_KEY_PASSWORD }}
           EOF
             echo "VARIANT=assembleRelease" >> $GITHUB_ENV
+            echo "IS_RELEASE=true" >> $GITHUB_ENV
           else
             echo "Signing secrets missing — generating a debug keystore."
             keytool -genkeypair -v \
@@ -63,9 +61,10 @@ jobs:
           keyPassword=android
           EOF
             echo "VARIANT=assembleDebug" >> $GITHUB_ENV
+            echo "IS_RELEASE=false" >> $GITHUB_ENV
           fi
 
-      - name: Build with Gradle
+      - name: 🚂 Build with Gradle
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 20
@@ -77,19 +76,18 @@ jobs:
             --no-configuration-cache
             -Dorg.gradle.jvmargs="-Xmx2g -XX:+HeapDumpOnOutOfMemoryError"
 
-      - name: Find APK
+      - name: 🔍 Find APK
         run: find app/build/outputs/apk/ -name "*.apk"
 
-      - name: Upload APK
+      - name: 📦 Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: netguard-apk
           path: app/build/outputs/apk/**/*.apk
 
-      - name: Upload mapping file
-        # Only available when minifyEnabled=true and a release build was signed
-        if: success() && env.VARIANT == 'assembleRelease'
+      - name: 📜 Upload Mapping File
+        if: success() && env.IS_RELEASE == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: mapping-file
