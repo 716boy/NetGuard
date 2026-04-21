@@ -46,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "NetGuard.Database";
 
     private static final String DB_NAME = "Netguard";
-    private static final int DB_VERSION = 22;
+    private static final int DB_VERSION = 23;
 
     private static boolean once = true;
     private static List<LogChangedListener> logChangedListeners = new ArrayList<>();
@@ -218,6 +218,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ", system INTEGER  NOT NULL" +
                 ", internet INTEGER NOT NULL" +
                 ", enabled INTEGER NOT NULL" +
+                ", tunnel_mode INTEGER NOT NULL DEFAULT 0" +
                 ");");
         db.execSQL("CREATE UNIQUE INDEX idx_package ON app(package)");
     }
@@ -354,6 +355,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 if (!columnExists(db, "dns", "uid"))
                     db.execSQL("ALTER TABLE dns ADD COLUMN uid INTEGER");
                 oldVersion = 22;
+            }
+
+            if (oldVersion < 23) {
+                if (!columnExists(db, "app", "tunnel_mode"))
+                    db.execSQL("ALTER TABLE app ADD COLUMN tunnel_mode INTEGER NOT NULL DEFAULT 0");
+                oldVersion = 23;
             }
 
             if (oldVersion == DB_VERSION) {
@@ -1086,6 +1093,49 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return db.rawQuery(query, new String[]{packageName});
         } finally {
             lock.readLock().unlock();
+        }
+    }
+
+    // tunnel_mode: 0=none, 1=wireguard, 2=socks5
+    public int getTunnelMode(String packageName) {
+        lock.readLock().lock();
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            try (Cursor cursor = db.rawQuery(
+                    "SELECT tunnel_mode FROM app WHERE package = ?",
+                    new String[]{packageName})) {
+                if (cursor.moveToFirst())
+                    return cursor.getInt(0);
+                return 0;
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public void setTunnelMode(String packageName, int mode) {
+        lock.writeLock().lock();
+        try {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.beginTransactionNonExclusive();
+            try {
+                ContentValues cv = new ContentValues();
+                cv.put("tunnel_mode", mode);
+                int rows = db.update("app", cv, "package = ?", new String[]{packageName});
+                if (rows == 0) {
+                    cv.put("package", packageName);
+                    cv.put("label", "");
+                    cv.put("system", 0);
+                    cv.put("internet", 1);
+                    cv.put("enabled", 1);
+                    db.insert("app", null, cv);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 

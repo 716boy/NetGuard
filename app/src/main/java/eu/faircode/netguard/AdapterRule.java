@@ -55,10 +55,12 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -146,6 +148,7 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
         public ImageButton ibLaunch;
 
         public CheckBox cbApply;
+        public Spinner spinnerTunnel;
 
         public LinearLayout llScreenWifi;
         public ImageView ivWifiLegend;
@@ -206,6 +209,7 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
             ibLaunch = itemView.findViewById(R.id.ibLaunch);
 
             cbApply = itemView.findViewById(R.id.cbApply);
+            spinnerTunnel = itemView.findViewById(R.id.spinnerTunnel);
 
             llScreenWifi = itemView.findViewById(R.id.llScreenWifi);
             ivWifiLegend = itemView.findViewById(R.id.ivWifiLegend);
@@ -525,6 +529,27 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
                 rule.apply = isChecked;
                 updateRule(context, rule, true, listAll);
             }
+        });
+
+        // Tunnel mode spinner
+        ArrayAdapter<CharSequence> tunnelAdapter = ArrayAdapter.createFromResource(
+                context, R.array.tunnel_mode_entries, android.R.layout.simple_spinner_item);
+        tunnelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        holder.spinnerTunnel.setAdapter(tunnelAdapter);
+        holder.spinnerTunnel.setOnItemSelectedListener(null);
+        holder.spinnerTunnel.setSelection(rule.tunnelMode.value, false);
+        holder.spinnerTunnel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TunnelMode selected = TunnelMode.fromValue(position);
+                if (selected != rule.tunnelMode) {
+                    rule.tunnelMode = selected;
+                    DatabaseHelper.getInstance(context).setTunnelMode(rule.packageName, selected.value);
+                    ServiceSinkhole.reload("tunnel mode", context, false);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
         });
 
         // Show Wi-Fi screen on condition

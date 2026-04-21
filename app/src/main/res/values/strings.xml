@@ -264,6 +264,24 @@ Your internet traffic is not being sent to a remote VPN server.</string>
     <string name="title_messaging">Incoming messages are received by Google Play services and not by this app and can therefore not be blocked by blocking this app</string>
     <string name="title_download">Downloads are performed by the download manager and not by this app and can therefore not be blocked by blocking this app</string>
     <string name="title_apply">Apply rules and conditions</string>
+    <string name="title_tunnel_mode">Tunnel</string>
+    <string-array name="tunnel_mode_entries">
+        <item>None (direct)</item>
+        <item>WireGuard</item>
+        <item>SOCKS5</item>
+    </string-array>
+    <string name="title_wireguard">WireGuard Configuration</string>
+    <string name="title_wg_config">WireGuard Config (.conf)</string>
+    <string name="title_wg_import">Import file</string>
+    <string name="title_wg_save">Save</string>
+    <string name="title_wg_clear">Clear</string>
+    <string name="hint_wg_config">[Interface]\nPrivateKey = …\nAddress = …\n\n[Peer]\nPublicKey = …\nEndpoint = …\nAllowedIPs = 0.0.0.0/0</string>
+    <string name="msg_wg_invalid_config">Config must contain [Interface] and [Peer] sections</string>
+    <string name="msg_wg_saved">WireGuard config saved</string>
+    <string name="msg_wg_read_error">Failed to read config file</string>
+    <string name="msg_wg_configured">Configured — peer: %1$s</string>
+    <string name="msg_wg_not_configured">Not configured</string>
+    <string name="title_wireguard_settings">WireGuard tunnel</string>
     <string name="title_conditions">Conditions</string>
     <string name="title_screen_wifi">Allow Wi-Fi when screen is on</string>
     <string name="title_screen_other">Allow mobile when screen is on</string>
