@@ -1,5 +1,6 @@
 Häufig gestellte Fragen (FAQ)
 
+
 (0) Wie verwende ich NetGuard?
 
     Aktivieren Sie die NetGuard-Firewall über den Schalter in der Aktionsleiste von NetGuard
