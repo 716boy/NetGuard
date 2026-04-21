@@ -267,11 +267,18 @@ public class ActivitySettings extends AppCompatActivity implements SharedPrefere
         pref_validate.setTitle(getString(R.string.setting_validate, prefs.getString("validate", "www.google.com")));
         pref_ttl.setTitle(getString(R.string.setting_ttl, prefs.getString("ttl", "259200")));
 
-        // SOCKS5 parameters
-        screen.findPreference("socks5_addr").setTitle(getString(R.string.setting_socks5_addr, prefs.getString("socks5_addr", "-")));
-        screen.findPreference("socks5_port").setTitle(getString(R.string.setting_socks5_port, prefs.getString("socks5_port", "-")));
-        screen.findPreference("socks5_username").setTitle(getString(R.string.setting_socks5_username, prefs.getString("socks5_username", "-")));
-        screen.findPreference("socks5_password").setTitle(getString(R.string.setting_socks5_password, TextUtils.isEmpty(prefs.getString("socks5_username", "")) ? "-" : "*****"));
+        // SOCKS5 — single entry that launches ActivitySocks5
+        Preference pref_socks5 = screen.findPreference("socks5");
+        if (pref_socks5 != null) {
+            Socks5Manager s5 = Socks5Manager.getInstance(ActivitySettings.this);
+            pref_socks5.setSummary(s5.isEnabled()
+                    ? getString(R.string.summary_socks5_active, s5.getAddr(), s5.getPort())
+                    : getString(R.string.summary_socks5_settings));
+            pref_socks5.setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(ActivitySettings.this, ActivitySocks5.class));
+                return true;
+            });
+        }
 
         // PCAP parameters
         screen.findPreference("pcap_record_size").setTitle(getString(R.string.setting_pcap_record_size, prefs.getString("pcap_record_size", "64")));
@@ -728,34 +735,19 @@ public class ActivitySettings extends AppCompatActivity implements SharedPrefere
                     getString(R.string.setting_rcode, prefs.getString(name, "3")));
             ServiceSinkhole.reload("changed " + name, this, false);
 
-        } else if ("socks5_enabled".equals(name))
-            ServiceSinkhole.reload("changed " + name, this, false);
-
-        else if ("socks5_addr".equals(name)) {
-            String socks5_addr = prefs.getString(name, null);
-            try {
-                if (!TextUtils.isEmpty(socks5_addr) && !Util.isNumericAddress(socks5_addr))
-                    throw new IllegalArgumentException("Bad address");
-            } catch (Throwable ex) {
-                prefs.edit().remove(name).apply();
-                ((EditTextPreference) getPreferenceScreen().findPreference(name)).setText(null);
-                if (!TextUtils.isEmpty(socks5_addr))
-                    Toast.makeText(ActivitySettings.this, ex.toString(), Toast.LENGTH_LONG).show();
+        } else if ("socks5_enabled".equals(name) ||
+                "socks5_addr".equals(name) ||
+                "socks5_port".equals(name) ||
+                "socks5_username".equals(name) ||
+                "socks5_password".equals(name)) {
+            // Refresh the SOCKS5 summary in the preference screen
+            Preference pref_socks5 = getPreferenceScreen().findPreference("socks5");
+            if (pref_socks5 != null) {
+                Socks5Manager s5 = Socks5Manager.getInstance(ActivitySettings.this);
+                pref_socks5.setSummary(s5.isEnabled()
+                        ? getString(R.string.summary_socks5_active, s5.getAddr(), s5.getPort())
+                        : getString(R.string.summary_socks5_settings));
             }
-            getPreferenceScreen().findPreference(name).setTitle(
-                    getString(R.string.setting_socks5_addr, prefs.getString(name, "-")));
-            ServiceSinkhole.reload("changed " + name, this, false);
-
-        } else if ("socks5_port".equals(name)) {
-            getPreferenceScreen().findPreference(name).setTitle(getString(R.string.setting_socks5_port, prefs.getString(name, "-")));
-            ServiceSinkhole.reload("changed " + name, this, false);
-
-        } else if ("socks5_username".equals(name)) {
-            getPreferenceScreen().findPreference(name).setTitle(getString(R.string.setting_socks5_username, prefs.getString(name, "-")));
-            ServiceSinkhole.reload("changed " + name, this, false);
-
-        } else if ("socks5_password".equals(name)) {
-            getPreferenceScreen().findPreference(name).setTitle(getString(R.string.setting_socks5_password, TextUtils.isEmpty(prefs.getString(name, "")) ? "-" : "*****"));
             ServiceSinkhole.reload("changed " + name, this, false);
 
         } else if ("pcap_record_size".equals(name) || "pcap_file_size".equals(name)) {

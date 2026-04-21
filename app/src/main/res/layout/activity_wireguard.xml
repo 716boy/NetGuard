@@ -2,66 +2,145 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="?android:attr/colorBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <!-- Status card -->
+        <LinearLayout
+            android:id="@+id/llWgStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/card_background"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:id="@+id/ivWgStatusIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="12dp"
+                android:layout_marginRight="12dp"
+                android:src="@drawable/twotone_info_outline_24" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvWgStatusLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title_wg_status"
+                    android:textAppearance="@style/TextSmall"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvWgStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="@style/TextSmall" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Config section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
             android:text="@string/title_wg_config"
             android:textAppearance="@style/TextTitle" />
 
         <TextView
-            android:id="@+id/tvWgStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/summary_wg_config"
             android:textAppearance="@style/TextSmall" />
 
         <EditText
             android:id="@+id/etWgConfig"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
             android:fontFamily="monospace"
             android:gravity="top|start"
             android:hint="@string/hint_wg_config"
             android:inputType="textMultiLine"
-            android:minLines="10"
+            android:minLines="12"
+            android:padding="8dp"
             android:scrollbars="vertical"
             android:textAppearance="@style/TextSmall" />
 
+        <!-- Peer info row (shown when config is loaded) -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/llWgPeerInfo"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingEnd="4dp"
+                android:paddingRight="4dp"
+                android:text="@string/title_wg_peer"
+                android:textAppearance="@style/TextSmall"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvWgPeer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextSmall" />
+        </LinearLayout>
+
+        <!-- Action buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnWgImport"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
+                android:layout_weight="1"
                 android:text="@string/title_wg_import" />
 
             <Button
                 android:id="@+id/btnWgSave"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
+                android:layout_weight="1"
                 android:text="@string/title_wg_save" />
 
             <Button
                 android:id="@+id/btnWgClear"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/title_wg_clear" />
         </LinearLayout>
+
     </LinearLayout>
 </ScrollView>

@@ -240,30 +240,11 @@
                 android:dependency="filter"
                 android:inputType="number"
                 android:key="ttl" />
-            <CheckBoxPreference
-                android:defaultValue="false"
+            <Preference
                 android:dependency="filter"
-                android:key="socks5_enabled"
-                android:summary="@string/summary_socks5_enabled"
-                android:title="@string/setting_socks5_enabled" />
-            <EditTextPreference
-                android:dependency="filter"
-                android:hint="127.0.0.1"
-                android:inputType="text"
-                android:key="socks5_addr" />
-            <EditTextPreference
-                android:dependency="filter"
-                android:hint="1080"
-                android:inputType="number"
-                android:key="socks5_port" />
-            <EditTextPreference
-                android:dependency="filter"
-                android:inputType="text"
-                android:key="socks5_username" />
-            <EditTextPreference
-                android:dependency="filter"
-                android:inputType="textPassword"
-                android:key="socks5_password" />
+                android:key="socks5"
+                android:summary="@string/summary_socks5_settings"
+                android:title="@string/title_socks5_settings" />
             <EditTextPreference
                 android:defaultValue="64"
                 android:inputType="number"

@@ -366,6 +366,9 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
 
         showHints();
 
+        // Tunnel status banner
+        updateTunnelStatusBanner();
+
         // Listen for preference changes
         prefs.registerOnSharedPreferenceChangeListener(this);
 
@@ -679,6 +682,12 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
             if (swEnabled.isChecked() != enabled)
                 swEnabled.setChecked(enabled);
 
+        } else if ("socks5_enabled".equals(name) ||
+                Socks5Manager.PREF_ADDR.equals(name) ||
+                Socks5Manager.PREF_PORT.equals(name) ||
+                WireGuardManager.PREF_WG_CONFIG.equals(name)) {
+            updateTunnelStatusBanner();
+
         } else if ("whitelist_wifi".equals(name) ||
                 "screen_on".equals(name) ||
                 "screen_wifi".equals(name) ||
@@ -972,6 +981,34 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
 
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void updateTunnelStatusBanner() {
+        LinearLayout llTunnelStatus = findViewById(R.id.llTunnelStatus);
+        TextView tvTunnelStatus = findViewById(R.id.tvTunnelStatus);
+        if (llTunnelStatus == null || tvTunnelStatus == null) return;
+
+        WireGuardManager wg = WireGuardManager.getInstance(this);
+        Socks5Manager s5 = Socks5Manager.getInstance(this);
+
+        boolean wgActive = wg.hasConfig();
+        boolean s5Active = s5.isEnabled();
+
+        if (wgActive && s5Active) {
+            tvTunnelStatus.setText(getString(R.string.msg_tunnel_wg_and_socks5));
+            llTunnelStatus.setVisibility(View.VISIBLE);
+        } else if (wgActive) {
+            String peer = wg.getPeerEndpoint();
+            tvTunnelStatus.setText(getString(R.string.msg_tunnel_wg_active,
+                    peer != null ? peer : getString(R.string.msg_wg_peer_unknown)));
+            llTunnelStatus.setVisibility(View.VISIBLE);
+        } else if (s5Active) {
+            tvTunnelStatus.setText(getString(R.string.msg_tunnel_socks5_active,
+                    s5.getAddr(), s5.getPort()));
+            llTunnelStatus.setVisibility(View.VISIBLE);
+        } else {
+            llTunnelStatus.setVisibility(View.GONE);
         }
     }
 

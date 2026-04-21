@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Status card -->
+        <LinearLayout
+            android:id="@+id/llSocks5Status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/card_background"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:id="@+id/ivSocks5StatusIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="12dp"
+                android:layout_marginRight="12dp"
+                android:src="@drawable/twotone_info_outline_24" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvSocks5StatusLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title_socks5_status"
+                    android:textAppearance="@style/TextSmall"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvSocks5Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="@style/TextSmall" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnSocks5Test"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="@string/title_socks5_test" />
+        </LinearLayout>
+
+        <!-- Enable toggle -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/setting_socks5_enabled"
+                android:textAppearance="@style/TextMedium" />
+
+            <CheckBox
+                android:id="@+id/cbSocks5Enabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- Proxy address -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/title_socks5_address"
+            android:textAppearance="@style/TextTitle" />
+
+        <EditText
+            android:id="@+id/etSocks5Addr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="@string/hint_socks5_addr"
+            android:inputType="text"
+            android:textAppearance="@style/TextSmall" />
+
+        <!-- Proxy port -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/title_socks5_port"
+            android:textAppearance="@style/TextTitle" />
+
+        <EditText
+            android:id="@+id/etSocks5Port"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="@string/hint_socks5_port"
+            android:inputType="number"
+            android:textAppearance="@style/TextSmall" />
+
+        <!-- Authentication section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/title_socks5_auth"
+            android:textAppearance="@style/TextTitle" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/summary_socks5_auth"
+            android:textAppearance="@style/TextSmall" />
+
+        <EditText
+            android:id="@+id/etSocks5Username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="@string/hint_socks5_username"
+            android:inputType="text"
+            android:textAppearance="@style/TextSmall" />
+
+        <EditText
+            android:id="@+id/etSocks5Password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="@string/hint_socks5_password"
+            android:inputType="textPassword"
+            android:textAppearance="@style/TextSmall" />
+
+        <!-- Save button -->
+        <Button
+            android:id="@+id/btnSocks5Save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_socks5_save" />
+
+    </LinearLayout>
+</ScrollView>

@@ -282,6 +282,43 @@ Your internet traffic is not being sent to a remote VPN server.</string>
     <string name="msg_wg_configured">Configured — peer: %1$s</string>
     <string name="msg_wg_not_configured">Not configured</string>
     <string name="title_wireguard_settings">WireGuard tunnel</string>
+
+    <!-- WireGuard activity extras -->
+    <string name="title_wg_status">Status</string>
+    <string name="summary_wg_config">Paste a WireGuard .conf or import a file. The tunnel routes per-app traffic through a local SOCKS5 endpoint.</string>
+    <string name="title_wg_peer">Peer endpoint:</string>
+    <string name="msg_wg_peer_unknown">unknown</string>
+
+    <!-- SOCKS5 activity -->
+    <string name="title_socks5">SOCKS5 Proxy</string>
+    <string name="title_socks5_settings">SOCKS5 proxy</string>
+    <string name="summary_socks5_settings">Configure an external SOCKS5 proxy for per-app routing</string>
+    <string name="summary_socks5_active">Active — %1$s:%2$d</string>
+    <string name="title_socks5_status">Status</string>
+    <string name="title_socks5_test">Test</string>
+    <string name="title_socks5_address">Proxy address</string>
+    <string name="title_socks5_port">Proxy port</string>
+    <string name="title_socks5_auth">Authentication</string>
+    <string name="summary_socks5_auth">Leave blank if the proxy requires no authentication</string>
+    <string name="title_socks5_save">Save</string>
+    <string name="hint_socks5_addr">127.0.0.1</string>
+    <string name="hint_socks5_port">40000</string>
+    <string name="hint_socks5_username">Username (optional)</string>
+    <string name="hint_socks5_password">Password (optional)</string>
+    <string name="msg_socks5_saved">SOCKS5 settings saved</string>
+    <string name="msg_socks5_testing">Testing connection…</string>
+    <string name="msg_socks5_reachable">Reachable — %1$s:%2$d</string>
+    <string name="msg_socks5_unreachable">Unreachable — %1$s:%2$d</string>
+    <string name="msg_socks5_configured">Configured — %1$s:%2$d</string>
+    <string name="msg_socks5_disabled">Disabled</string>
+    <string name="msg_socks5_addr_required">Address is required</string>
+    <string name="msg_socks5_port_required">Port is required</string>
+    <string name="msg_socks5_port_invalid">Port must be 1–65535</string>
+
+    <!-- Tunnel status banner in main screen -->
+    <string name="msg_tunnel_wg_active">WireGuard active — peer: %1$s</string>
+    <string name="msg_tunnel_socks5_active">SOCKS5 proxy active — %1$s:%2$d</string>
+    <string name="msg_tunnel_wg_and_socks5">WireGuard and SOCKS5 proxy active</string>
     <string name="title_conditions">Conditions</string>
     <string name="title_screen_wifi">Allow Wi-Fi when screen is on</string>
     <string name="title_screen_other">Allow mobile when screen is on</string>
